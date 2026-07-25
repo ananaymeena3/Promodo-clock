@@ -15,6 +15,7 @@ import { Toaster } from 'react-hot-toast';
 import { HomePage } from './pages/HomePage';
 import { TimerPage } from './pages/TimerPage';
 import { StudyRoomsPage } from './pages/StudyRoomsPage';
+import { SoundscapePage } from './pages/SoundscapePage';
 import { JournalPage } from './pages/JournalPage';
 import { TasksPage } from './pages/TasksPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
@@ -135,7 +136,7 @@ export const App: React.FC = () => {
             <Route path="/focus-timer" element={<TimerPage />} />
             <Route path="/timer" element={<Navigate to="/focus-timer" replace />} />
             <Route path="/rooms" element={<StudyRoomsPage />} />
-            <Route path="/sounds" element={<Navigate to="/rooms" replace />} />
+            <Route path="/sounds" element={<SoundscapePage />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />

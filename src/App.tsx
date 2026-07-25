@@ -8,7 +8,6 @@ import { CommandPalette } from './components/common/CommandPalette';
 import { KeyboardShortcutsModal } from './components/common/KeyboardShortcutsModal';
 import { ExportImportModal } from './components/common/ExportImportModal';
 import { AchievementsModal } from './components/common/AchievementsModal';
-import { AICoachModal } from './components/coach/AICoachModal';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 
@@ -18,7 +17,6 @@ import { TimerPage } from './pages/TimerPage';
 import { StudyRoomsPage } from './pages/StudyRoomsPage';
 import { JournalPage } from './pages/JournalPage';
 import { TasksPage } from './pages/TasksPage';
-import { SoundscapePage } from './pages/SoundscapePage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { PlannerPage } from './pages/PlannerPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -137,9 +135,9 @@ export const App: React.FC = () => {
             <Route path="/focus-timer" element={<TimerPage />} />
             <Route path="/timer" element={<Navigate to="/focus-timer" replace />} />
             <Route path="/rooms" element={<StudyRoomsPage />} />
+            <Route path="/sounds" element={<Navigate to="/rooms" replace />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/tasks" element={<TasksPage />} />
-            <Route path="/sounds" element={<SoundscapePage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/calendar" element={<PlannerPage />} />
             <Route path="/profile" element={<ProfilePage />} />
@@ -156,7 +154,6 @@ export const App: React.FC = () => {
         <KeyboardShortcutsModal />
         <ExportImportModal />
         <AchievementsModal />
-        <AICoachModal />
       </div>
     </ErrorBoundary>
   );

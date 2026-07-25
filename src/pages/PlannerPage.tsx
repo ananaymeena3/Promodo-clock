@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useAppStore } from '../store/useAppStore';
 import { useHabitStore } from '../store/useHabitStore';
 import { Habit } from '../types';
 import {
@@ -9,8 +8,6 @@ import {
   CalendarHeart,
   Plus,
   Trash2,
-  Brain,
-  Zap,
 } from 'lucide-react';
 import { soundEngine } from '../services/soundGenerator';
 import toast from 'react-hot-toast';
@@ -35,9 +32,6 @@ export const PlannerPage: React.FC = () => {
   const [newExamDate, setNewExamDate] = useState('');
   const [isExamModalOpen, setIsExamModalOpen] = useState(false);
 
-  const [aiGoalInput, setAiGoalInput] = useState('');
-  const [aiPlanOutput, setAiPlanOutput] = useState<string | null>(null);
-
   const handleAddExam = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newExamTitle.trim() || !newExamDate) return;
@@ -58,19 +52,6 @@ export const PlannerPage: React.FC = () => {
     setIsExamModalOpen(false);
   };
 
-  const handleGenerateAIPlan = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!aiGoalInput.trim()) return;
-    soundEngine.playClickSound();
-    setAiPlanOutput(
-      `📚 Haven AI Sanctuary Study Roadmap for "${aiGoalInput}":\n\n` +
-      `• Phase 1 (Days 1-3): 4 Focused Pomodoros/day — Literature review & core concept mapping.\n` +
-      `• Phase 2 (Days 4-7): 6 Focused Pomodoros/day — Deep writing, problem sets & active recall.\n` +
-      `• Phase 3 (Pre-Exam Review): 3 Focused Pomodoros/day — Mock exams in Oxford Library Study Room with Ambient Rain soundscape.\n\n` +
-      `💡 Recommended Ambient Environment: Dark Academia Theme + Rain + Fireplace audio mix.`
-    );
-  };
-
   const calculateDaysLeft = (targetDateStr: string) => {
     const diff = new Date(targetDateStr).getTime() - new Date().getTime();
     return Math.max(0, Math.ceil(diff / (1000 * 3600 * 24)));
@@ -82,13 +63,13 @@ export const PlannerPage: React.FC = () => {
       <div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#CDAA7D]/10 text-[#CDAA7D] text-xs font-mono mb-2">
           <Calendar className="w-3.5 h-3.5" />
-          <span>Sanctuary Calendar & AI Planner</span>
+          <span>Sanctuary Calendar & Planner</span>
         </div>
         <h2 className="font-serif-heading text-3xl sm:text-4xl font-extrabold text-[#F4EFE9]">
-          Exam Countdowns & AI Study Roadmap
+          Exam Countdowns & Habit Tracking
         </h2>
         <p className="text-xs sm:text-sm text-[#A99F96] mt-1">
-          Prepare for major milestones with countdown timers, AI generated study schedules, and atomic habit tracking.
+          Prepare for major milestones with countdown timers and track your atomic daily habits.
         </p>
       </div>
 
@@ -138,42 +119,6 @@ export const PlannerPage: React.FC = () => {
                 </div>
               );
             })}
-          </div>
-
-          {/* AI Study Planner Box */}
-          <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-[#CDAA7D]/30 space-y-4 bg-gradient-to-r from-[#6D4C41]/20 via-[#181613] to-[#35543A]/20">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-[#CDAA7D]/10 text-[#CDAA7D] border border-[#CDAA7D]/20">
-                <Brain className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-serif-heading text-lg font-bold text-[#F4EFE9]">AI Sanctuary Study Planner</h4>
-                <p className="text-xs text-[#A99F96]">Generate an optimal study schedule & ambient environment for any exam or project.</p>
-              </div>
-            </div>
-
-            <form onSubmit={handleGenerateAIPlan} className="flex flex-col sm:flex-row gap-3 pt-2">
-              <input
-                type="text"
-                placeholder="e.g. Master Organic Chemistry in 14 days..."
-                value={aiGoalInput}
-                onChange={(e) => setAiGoalInput(e.target.value)}
-                className="flex-1 glass-input px-4 py-3 rounded-2xl text-xs"
-              />
-              <button
-                type="submit"
-                className="px-6 py-3 rounded-2xl bg-[#CDAA7D] hover:bg-[#b59266] text-[#181613] font-bold text-xs shadow-lg flex items-center justify-center gap-2"
-              >
-                <Zap className="w-4 h-4 fill-[#181613]" />
-                <span>Generate Plan</span>
-              </button>
-            </form>
-
-            {aiPlanOutput && (
-              <div className="p-4 rounded-2xl bg-[#181613]/90 border border-[#CDAA7D]/30 text-xs text-[#F5EBDD] font-mono leading-relaxed whitespace-pre-wrap animate-fade-in mt-4">
-                {aiPlanOutput}
-              </div>
-            )}
           </div>
         </div>
 

@@ -4,16 +4,12 @@ import {
   Home,
   Clock,
   Compass,
-  BookOpen,
   CheckSquare,
-  Volume2,
   BarChart3,
   Calendar,
   Settings,
-  Sparkles,
   Award,
   LogOut,
-  Command,
   Flame,
   Feather,
 } from 'lucide-react';
@@ -24,12 +20,11 @@ import { soundEngine } from '../../services/soundGenerator';
 const NAV_ITEMS = [
   { path: '/home', label: 'Home Sanctuary', icon: Home },
   { path: '/focus-timer', label: 'Focus Timer', icon: Clock },
-  { path: '/rooms', label: 'Study Rooms', icon: Compass },
   { path: '/journal', label: 'Reflection Journal', icon: Feather },
   { path: '/tasks', label: 'Tasks & Goals', icon: CheckSquare },
-  { path: '/sounds', label: 'Soundscapes', icon: Volume2 },
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { path: '/calendar', label: 'Planner & AI', icon: Calendar },
+  { path: '/calendar', label: 'Calendar & Planner', icon: Calendar },
+  { path: '/rooms', label: 'Study Rooms & Sounds', icon: Compass },
   { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -38,8 +33,6 @@ export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout, isSupabaseConnected } = useAuthStore();
   const {
-    toggleCommandPalette,
-    toggleAICoachModal,
     toggleAchievementsModal,
     streaks,
   } = useAppStore();
@@ -125,21 +118,6 @@ export const Sidebar: React.FC = () => {
           Sanctuary Tools
         </div>
 
-        {/* AI Planner Button */}
-        <button
-          onClick={() => {
-            soundEngine.playClickSound();
-            toggleAICoachModal();
-          }}
-          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-[#CDAA7D] bg-[#CDAA7D]/10 hover:bg-[#CDAA7D]/20 border border-[#CDAA7D]/20 transition-all group"
-        >
-          <div className="flex items-center gap-3">
-            <Sparkles className="w-4 h-4 text-[#CDAA7D] group-hover:rotate-12 transition-transform" />
-            <span>AI Study Planner</span>
-          </div>
-          <span className="text-[9px] font-mono bg-[#CDAA7D]/20 text-[#F5EBDD] px-1.5 py-0.5 rounded">AI</span>
-        </button>
-
         {/* Achievements Modal Button */}
         <button
           onClick={() => {
@@ -154,36 +132,22 @@ export const Sidebar: React.FC = () => {
           </div>
           <span className="text-[9px] font-mono bg-[#35543A]/40 text-emerald-300 px-1.5 py-0.5 rounded">Unlocked</span>
         </button>
+      </nav>
 
-        {/* Logout Button */}
+      {/* Footer Area with Logout / Sign Out Button */}
+      <div className="p-3 border-t border-white/5">
         <button
           onClick={() => {
             soundEngine.playClickSound();
             logout();
             navigate('/auth');
           }}
-          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-[#A99F96] hover:text-red-400 hover:bg-red-500/10 transition-all group pt-2"
+          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-[#A99F96] hover:text-red-400 hover:bg-red-500/10 border border-white/5 transition-all group"
         >
           <div className="flex items-center gap-3">
             <LogOut className="w-4 h-4 text-[#A99F96] group-hover:text-red-400 transition-transform group-hover:scale-110" />
             <span>Sign Out</span>
           </div>
-        </button>
-      </nav>
-
-      {/* Quick Action Footer */}
-      <div className="p-3 border-t border-white/5 space-y-2">
-        <button
-          onClick={toggleCommandPalette}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#A99F96] text-xs transition-all border border-white/5"
-        >
-          <div className="flex items-center gap-2">
-            <Command className="w-3.5 h-3.5" />
-            <span>Quick Palette</span>
-          </div>
-          <kbd className="px-1.5 py-0.5 text-[9px] font-mono bg-[#181613] rounded text-[#CDAA7D] border border-white/10">
-            ⌘K
-          </kbd>
         </button>
       </div>
     </aside>

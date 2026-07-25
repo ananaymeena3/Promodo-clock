@@ -1,17 +1,27 @@
-// Web Audio API Sound Synthesizer & Ambient Sound Engine
+// Haven Web Audio Synthesizer & Multi-Channel Ambient Sound Engine
+import { SoundChannelId } from '../types';
+
+interface ChannelNodeGroup {
+  sourceNodes: AudioNode[];
+  gainNode: GainNode;
+  filterNode?: BiquadFilterNode;
+  lfoNode?: OscillatorNode;
+}
 
 class SoundEngine {
   private ctx: AudioContext | null = null;
-  private ambientSourceNodes: AudioNode[] = [];
-  private ambientGainNode: GainNode | null = null;
-  private currentTrack: string | null = null;
-  private isAmbientPlaying = false;
-  private ambientVolume = 0.5;
+  private masterGain: GainNode | null = null;
+  private channelNodes: Map<SoundChannelId, ChannelNodeGroup> = new Map();
+  private channelVolumes: Map<SoundChannelId, number> = new Map();
+  private channelMuted: Map<SoundChannelId, boolean> = new Map();
 
   private getContext(): AudioContext {
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       this.ctx = new AudioCtx();
+      this.masterGain = this.ctx.createGain();
+      this.masterGain.gain.setValueAtTime(0.7, this.ctx.currentTime);
+      this.masterGain.connect(this.ctx.destination);
     }
     if (this.ctx.state === 'suspended') {
       this.ctx.resume();
@@ -19,35 +29,28 @@ class SoundEngine {
     return this.ctx;
   }
 
-  // --- Notification Sound Synthesizers ---
+  // --- Chime Synthesizers ---
 
   public playTimerFinishSound() {
     try {
       const ctx = this.getContext();
       const now = ctx.currentTime;
-      
-      // Chime sequence: G5 -> C6 -> E6 -> G6
-      const notes = [783.99, 1046.50, 1318.51, 1567.98];
+      // Warm chord: C5 -> E5 -> G5 -> B5 -> C6
+      const notes = [523.25, 659.25, 783.99, 987.77, 1046.50];
       notes.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + idx * 0.15);
-        
-        gain.gain.setValueAtTime(0, now + idx * 0.15);
-        gain.gain.linearRampToValueAtTime(0.3, now + idx * 0.15 + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.15 + 0.8);
-        
+        osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+        gain.gain.setValueAtTime(0, now + idx * 0.12);
+        gain.gain.linearRampToValueAtTime(0.2, now + idx * 0.12 + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 1.2);
         osc.connect(gain);
-        gain.connect(ctx.destination);
-        
-        osc.start(now + idx * 0.15);
-        osc.stop(now + idx * 0.15 + 0.85);
+        gain.connect(this.masterGain || ctx.destination);
+        osc.start(now + idx * 0.12);
+        osc.stop(now + idx * 0.12 + 1.3);
       });
-    } catch (e) {
-      console.warn('Audio play failed', e);
-    }
+    } catch (e) {}
   }
 
   public playClickSound() {
@@ -56,19 +59,15 @@ class SoundEngine {
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(440, now);
-      osc.frequency.exponentialRampToValueAtTime(880, now + 0.04);
-
-      gain.gain.setValueAtTime(0.1, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(640, now + 0.03);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
       osc.connect(gain);
-      gain.connect(ctx.destination);
-
+      gain.connect(this.masterGain || ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.05);
+      osc.stop(now + 0.04);
     } catch (e) {}
   }
 
@@ -76,71 +75,145 @@ class SoundEngine {
     try {
       const ctx = this.getContext();
       const now = ctx.currentTime;
-      const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+      const notes = [392.00, 523.25, 659.25, 783.99, 1046.50];
       notes.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, now + idx * 0.1);
-        gain.gain.setValueAtTime(0, now + idx * 0.1);
-        gain.gain.linearRampToValueAtTime(0.3, now + idx * 0.1 + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.6);
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        gain.gain.setValueAtTime(0, now + idx * 0.08);
+        gain.gain.linearRampToValueAtTime(0.25, now + idx * 0.08 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.8);
         osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now + idx * 0.1);
-        osc.stop(now + idx * 0.1 + 0.65);
+        gain.connect(this.masterGain || ctx.destination);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.85);
       });
     } catch (e) {}
   }
 
-  // --- Ambient Generators ---
+  // --- Multi-Channel Synthesizer Audio Engine ---
 
-  public startAmbient(track: string, volume: number = 0.5) {
-    this.stopAmbient();
+  public setChannelVolume(id: SoundChannelId, volume: number) {
+    this.channelVolumes.set(id, volume);
+    const group = this.channelNodes.get(id);
+    if (group && this.ctx) {
+      const isMuted = this.channelMuted.get(id) || false;
+      group.gainNode.gain.setValueAtTime(isMuted ? 0 : volume, this.ctx.currentTime);
+    }
+  }
+
+  public toggleChannelMute(id: SoundChannelId): boolean {
+    const nextMuted = !(this.channelMuted.get(id) || false);
+    this.channelMuted.set(id, nextMuted);
+    const group = this.channelNodes.get(id);
+    if (group && this.ctx) {
+      const vol = this.channelVolumes.get(id) ?? 0.5;
+      group.gainNode.gain.setValueAtTime(nextMuted ? 0 : vol, this.ctx.currentTime);
+    }
+    return nextMuted;
+  }
+
+  public toggleChannelPlay(id: SoundChannelId): boolean {
+    if (this.channelNodes.has(id)) {
+      this.stopChannel(id);
+      return false;
+    } else {
+      const vol = this.channelVolumes.get(id) ?? 0.5;
+      this.startChannel(id, vol);
+      return true;
+    }
+  }
+
+  public startChannel(id: SoundChannelId, volume: number = 0.5) {
+    this.stopChannel(id);
     const ctx = this.getContext();
-    this.currentTrack = track;
-    this.ambientVolume = volume;
-    this.isAmbientPlaying = true;
+    const gainNode = ctx.createGain();
+    const isMuted = this.channelMuted.get(id) || false;
+    gainNode.gain.setValueAtTime(isMuted ? 0 : volume, ctx.currentTime);
+    gainNode.connect(this.masterGain!);
 
-    this.ambientGainNode = ctx.createGain();
-    this.ambientGainNode.gain.setValueAtTime(volume, ctx.currentTime);
-    this.ambientGainNode.connect(ctx.destination);
+    const sourceNodes: AudioNode[] = [];
 
-    if (track === 'rain') {
-      this.createRainSound();
-    } else if (track === 'ocean') {
-      this.createOceanSound();
-    } else if (track === 'whitenoise') {
-      this.createWhiteNoise();
-    } else if (track === 'forest') {
-      this.createForestSound();
-    } else if (track === 'coffee') {
-      this.createCoffeeShopSound();
-    } else if (track === 'lofi') {
-      this.createLofiDrone();
+    switch (id) {
+      case 'rain':
+        this.buildRainChannel(ctx, gainNode, sourceNodes, 900);
+        break;
+      case 'heavy_rain':
+        this.buildRainChannel(ctx, gainNode, sourceNodes, 1600);
+        break;
+      case 'thunder':
+        this.buildThunderChannel(ctx, gainNode, sourceNodes);
+        break;
+      case 'fireplace':
+        this.buildFireplaceChannel(ctx, gainNode, sourceNodes);
+        break;
+      case 'forest':
+        this.buildForestChannel(ctx, gainNode, sourceNodes);
+        break;
+      case 'ocean':
+        this.buildOceanChannel(ctx, gainNode, sourceNodes);
+        break;
+      case 'coffeeshop':
+        this.buildCoffeeShopChannel(ctx, gainNode, sourceNodes);
+        break;
+      case 'library':
+        this.buildLibraryChannel(ctx, gainNode, sourceNodes);
+        break;
+      case 'wind':
+        this.buildWindChannel(ctx, gainNode, sourceNodes);
+        break;
+      case 'crickets':
+        this.buildCricketsChannel(ctx, gainNode, sourceNodes);
+        break;
+      case 'snow':
+        this.buildSnowChannel(ctx, gainNode, sourceNodes);
+        break;
+      case 'train':
+        this.buildTrainChannel(ctx, gainNode, sourceNodes);
+        break;
+      case 'whitenoise':
+        this.buildNoiseChannel(ctx, gainNode, sourceNodes, 'white');
+        break;
+      case 'brownnoise':
+        this.buildNoiseChannel(ctx, gainNode, sourceNodes, 'brown');
+        break;
+      case 'pinknoise':
+        this.buildNoiseChannel(ctx, gainNode, sourceNodes, 'pink');
+        break;
+    }
+
+    this.channelNodes.set(id, { sourceNodes, gainNode });
+    this.channelVolumes.set(id, volume);
+  }
+
+  public stopChannel(id: SoundChannelId) {
+    const group = this.channelNodes.get(id);
+    if (group) {
+      group.sourceNodes.forEach((node) => {
+        try {
+          if ('stop' in node && typeof (node as any).stop === 'function') {
+            (node as any).stop();
+          }
+          node.disconnect();
+        } catch (e) {}
+      });
+      group.gainNode.disconnect();
+      this.channelNodes.delete(id);
     }
   }
 
-  public stopAmbient() {
-    this.ambientSourceNodes.forEach(node => {
-      try {
-        if ('stop' in node && typeof (node as any).stop === 'function') {
-          (node as any).stop();
-        }
-        node.disconnect();
-      } catch (e) {}
-    });
-    this.ambientSourceNodes = [];
-    this.isAmbientPlaying = false;
-    this.currentTrack = null;
+  public stopAllChannels() {
+    Array.from(this.channelNodes.keys()).forEach((id) => this.stopChannel(id));
   }
 
-  public setAmbientVolume(val: number) {
-    this.ambientVolume = val;
-    if (this.ambientGainNode && this.ctx) {
-      this.ambientGainNode.gain.setValueAtTime(val, this.ctx.currentTime);
+  public setMasterVolume(vol: number) {
+    if (this.masterGain && this.ctx) {
+      this.masterGain.gain.setValueAtTime(vol, this.ctx.currentTime);
     }
   }
+
+  // --- Noise Buffer Helpers ---
 
   private createPinkNoiseBuffer(ctx: AudioContext): AudioBuffer {
     const bufferSize = 4 * ctx.sampleRate;
@@ -155,106 +228,39 @@ class SoundEngine {
       b3 = 0.86650 * b3 + white * 0.3104856;
       b4 = 0.55000 * b4 + white * 0.5329522;
       b5 = -0.7616 * b5 - white * 0.0168980;
-      data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-      data[i] *= 0.11;
+      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
       b6 = white * 0.115926;
     }
     return buffer;
   }
 
-  private createRainSound() {
-    const ctx = this.getContext();
-    const noiseBuffer = this.createPinkNoiseBuffer(ctx);
-    const noiseSource = ctx.createBufferSource();
-    noiseSource.buffer = noiseBuffer;
-    noiseSource.loop = true;
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 1000;
-
-    noiseSource.connect(filter);
-    filter.connect(this.ambientGainNode!);
-
-    noiseSource.start();
-    this.ambientSourceNodes.push(noiseSource, filter);
+  private createBrownNoiseBuffer(ctx: AudioContext): AudioBuffer {
+    const bufferSize = 4 * ctx.sampleRate;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let lastOut = 0.0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      data[i] = (lastOut + 0.02 * white) / 1.02;
+      lastOut = data[i];
+      data[i] *= 3.5;
+    }
+    return buffer;
   }
 
-  private createOceanSound() {
-    const ctx = this.getContext();
-    const noiseBuffer = this.createPinkNoiseBuffer(ctx);
-    const noiseSource = ctx.createBufferSource();
-    noiseSource.buffer = noiseBuffer;
-    noiseSource.loop = true;
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 400;
-
-    // Modulate filter frequency to simulate waves
-    const lfo = ctx.createOscillator();
-    lfo.frequency.value = 0.12; // wave speed
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 350;
-
-    lfo.connect(lfoGain);
-    lfoGain.connect(filter.frequency);
-
-    noiseSource.connect(filter);
-    filter.connect(this.ambientGainNode!);
-
-    noiseSource.start();
-    lfo.start();
-    this.ambientSourceNodes.push(noiseSource, filter, lfo, lfoGain);
-  }
-
-  private createWhiteNoise() {
-    const ctx = this.getContext();
+  private createWhiteNoiseBuffer(ctx: AudioContext): AudioBuffer {
     const bufferSize = 2 * ctx.sampleRate;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) {
-      data[i] = (Math.random() * 2 - 1) * 0.1;
+      data[i] = (Math.random() * 2 - 1) * 0.15;
     }
-
-    const noiseSource = ctx.createBufferSource();
-    noiseSource.buffer = buffer;
-    noiseSource.loop = true;
-
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 1200;
-
-    noiseSource.connect(filter);
-    filter.connect(this.ambientGainNode!);
-
-    noiseSource.start();
-    this.ambientSourceNodes.push(noiseSource, filter);
+    return buffer;
   }
 
-  private createForestSound() {
-    const ctx = this.getContext();
-    // Soft wind background
-    const noiseBuffer = this.createPinkNoiseBuffer(ctx);
-    const wind = ctx.createBufferSource();
-    wind.buffer = noiseBuffer;
-    wind.loop = true;
+  // --- Channel Builders ---
 
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 600;
-    filter.Q.value = 1;
-
-    wind.connect(filter);
-    filter.connect(this.ambientGainNode!);
-
-    wind.start();
-    this.ambientSourceNodes.push(wind, filter);
-  }
-
-  private createCoffeeShopSound() {
-    const ctx = this.getContext();
-    // Warm low rumble murmur noise
+  private buildRainChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[], cutoff: number) {
     const noiseBuffer = this.createPinkNoiseBuffer(ctx);
     const source = ctx.createBufferSource();
     source.buffer = noiseBuffer;
@@ -262,40 +268,218 @@ class SoundEngine {
 
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.value = 700;
+    filter.frequency.value = cutoff;
 
     source.connect(filter);
-    filter.connect(this.ambientGainNode!);
-
+    filter.connect(masterOut);
     source.start();
-    this.ambientSourceNodes.push(source, filter);
+    nodes.push(source, filter);
   }
 
-  private createLofiDrone() {
-    const ctx = this.getContext();
-    const osc1 = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
+  private buildThunderChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[]) {
+    const noiseBuffer = this.createBrownNoiseBuffer(ctx);
+    const source = ctx.createBufferSource();
+    source.buffer = noiseBuffer;
+    source.loop = true;
+
     const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 180;
 
-    osc1.type = 'sine';
-    osc1.frequency.value = 130.81; // C3
-    osc2.type = 'triangle';
-    osc2.frequency.value = 196.00; // G3
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 0.08;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 120;
 
+    lfo.connect(lfoGain);
+    lfoGain.connect(filter.frequency);
+
+    source.connect(filter);
+    filter.connect(masterOut);
+    source.start();
+    lfo.start();
+    nodes.push(source, filter, lfo, lfoGain);
+  }
+
+  private buildFireplaceChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[]) {
+    const noiseBuffer = this.createBrownNoiseBuffer(ctx);
+    const source = ctx.createBufferSource();
+    source.buffer = noiseBuffer;
+    source.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 350;
+    filter.Q.value = 2;
+
+    source.connect(filter);
+    filter.connect(masterOut);
+    source.start();
+    nodes.push(source, filter);
+  }
+
+  private buildForestChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[]) {
+    const noiseBuffer = this.createPinkNoiseBuffer(ctx);
+    const wind = ctx.createBufferSource();
+    wind.buffer = noiseBuffer;
+    wind.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 550;
+
+    wind.connect(filter);
+    filter.connect(masterOut);
+    wind.start();
+    nodes.push(wind, filter);
+  }
+
+  private buildOceanChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[]) {
+    const noiseBuffer = this.createPinkNoiseBuffer(ctx);
+    const source = ctx.createBufferSource();
+    source.buffer = noiseBuffer;
+    source.loop = true;
+
+    const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.value = 400;
 
-    const gain1 = ctx.createGain();
-    gain1.gain.value = 0.15;
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 0.12;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 300;
 
-    osc1.connect(gain1);
-    osc2.connect(gain1);
-    gain1.connect(filter);
-    filter.connect(this.ambientGainNode!);
+    lfo.connect(lfoGain);
+    lfoGain.connect(filter.frequency);
 
-    osc1.start();
-    osc2.start();
-    this.ambientSourceNodes.push(osc1, osc2, gain1, filter);
+    source.connect(filter);
+    filter.connect(masterOut);
+    source.start();
+    lfo.start();
+    nodes.push(source, filter, lfo, lfoGain);
+  }
+
+  private buildCoffeeShopChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[]) {
+    const noiseBuffer = this.createPinkNoiseBuffer(ctx);
+    const source = ctx.createBufferSource();
+    source.buffer = noiseBuffer;
+    source.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 650;
+
+    source.connect(filter);
+    filter.connect(masterOut);
+    source.start();
+    nodes.push(source, filter);
+  }
+
+  private buildLibraryChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[]) {
+    const noiseBuffer = this.createBrownNoiseBuffer(ctx);
+    const source = ctx.createBufferSource();
+    source.buffer = noiseBuffer;
+    source.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 300;
+
+    source.connect(filter);
+    filter.connect(masterOut);
+    source.start();
+    nodes.push(source, filter);
+  }
+
+  private buildWindChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[]) {
+    const noiseBuffer = this.createPinkNoiseBuffer(ctx);
+    const source = ctx.createBufferSource();
+    source.buffer = noiseBuffer;
+    source.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 450;
+    filter.Q.value = 3;
+
+    source.connect(filter);
+    filter.connect(masterOut);
+    source.start();
+    nodes.push(source, filter);
+  }
+
+  private buildCricketsChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[]) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.value = 4500;
+
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 8;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 0.2;
+
+    lfo.connect(lfoGain);
+    lfoGain.connect(gain.gain);
+
+    osc.connect(gain);
+    gain.connect(masterOut);
+    osc.start();
+    lfo.start();
+    nodes.push(osc, gain, lfo, lfoGain);
+  }
+
+  private buildSnowChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[]) {
+    const noiseBuffer = this.createWhiteNoiseBuffer(ctx);
+    const source = ctx.createBufferSource();
+    source.buffer = noiseBuffer;
+    source.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 500;
+
+    source.connect(filter);
+    filter.connect(masterOut);
+    source.start();
+    nodes.push(source, filter);
+  }
+
+  private buildTrainChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[]) {
+    const noiseBuffer = this.createBrownNoiseBuffer(ctx);
+    const source = ctx.createBufferSource();
+    source.buffer = noiseBuffer;
+    source.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 250;
+
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 1.5;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 100;
+
+    lfo.connect(lfoGain);
+    lfoGain.connect(filter.frequency);
+
+    source.connect(filter);
+    filter.connect(masterOut);
+    source.start();
+    lfo.start();
+    nodes.push(source, filter, lfo, lfoGain);
+  }
+
+  private buildNoiseChannel(ctx: AudioContext, masterOut: GainNode, nodes: AudioNode[], type: 'white' | 'brown' | 'pink') {
+    const buf = type === 'white' ? this.createWhiteNoiseBuffer(ctx) : type === 'brown' ? this.createBrownNoiseBuffer(ctx) : this.createPinkNoiseBuffer(ctx);
+    const source = ctx.createBufferSource();
+    source.buffer = buf;
+    source.loop = true;
+
+    source.connect(masterOut);
+    source.start();
+    nodes.push(source);
   }
 }
 

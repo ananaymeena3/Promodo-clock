@@ -30,13 +30,13 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   const getModeColor = () => {
     switch (mode) {
       case 'shortBreak':
-        return { stroke: '#10b981', gradientId: 'breakGradient', textClass: 'text-emerald-400' };
+        return { stroke: '#35543A', gradientId: 'breakGradient', textClass: 'text-emerald-400' };
       case 'longBreak':
-        return { stroke: '#06b6d4', gradientId: 'longBreakGradient', textClass: 'text-cyan-400' };
+        return { stroke: '#4E342E', gradientId: 'longBreakGradient', textClass: 'text-[#CDAA7D]' };
       case 'custom':
-        return { stroke: '#f59e0b', gradientId: 'customGradient', textClass: 'text-amber-400' };
+        return { stroke: '#CDAA7D', gradientId: 'customGradient', textClass: 'text-[#CDAA7D]' };
       default:
-        return { stroke: '#8b5cf6', gradientId: 'pomodoroGradient', textClass: 'text-purple-400' };
+        return { stroke: '#6D4C41', gradientId: 'pomodoroGradient', textClass: 'text-[#CDAA7D]' };
     }
   };
 
@@ -47,21 +47,21 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
       <svg width={size} height={size} className="transform -rotate-90 drop-shadow-2xl">
         <defs>
           <linearGradient id="pomodoroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#c4b5fd" />
-            <stop offset="50%" stopColor="#8b5cf6" />
-            <stop offset="100%" stopColor="#6d28d9" />
+            <stop offset="0%" stopColor="#F5EBDD" />
+            <stop offset="50%" stopColor="#CDAA7D" />
+            <stop offset="100%" stopColor="#6D4C41" />
           </linearGradient>
           <linearGradient id="breakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6ee7b7" />
-            <stop offset="100%" stopColor="#059669" />
+            <stop offset="0%" stopColor="#4ade80" />
+            <stop offset="100%" stopColor="#35543A" />
           </linearGradient>
           <linearGradient id="longBreakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#67e8f9" />
-            <stop offset="100%" stopColor="#0891b2" />
+            <stop offset="0%" stopColor="#CDAA7D" />
+            <stop offset="100%" stopColor="#4E342E" />
           </linearGradient>
           <linearGradient id="customGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fde047" />
-            <stop offset="100%" stopColor="#d97706" />
+            <stop offset="0%" stopColor="#F5EBDD" />
+            <stop offset="100%" stopColor="#CDAA7D" />
           </linearGradient>
         </defs>
 
@@ -96,19 +96,19 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
           key={formattedTime}
           initial={{ scale: 0.98 }}
           animate={{ scale: 1 }}
-          className="text-6xl font-extrabold tracking-tight font-mono text-white drop-shadow-lg"
+          className="text-6xl font-extrabold tracking-wider font-mono-num text-[#F4EFE9] drop-shadow-lg"
         >
           {formattedTime}
         </motion.h1>
-        
-        <p className={`text-xs font-semibold uppercase tracking-widest mt-2 ${modeTheme.textClass}`}>
+
+        <p className={`text-xs font-mono uppercase tracking-widest mt-2 ${modeTheme.textClass}`}>
           {mode === 'pomodoro' ? 'Focus Session' : mode === 'shortBreak' ? 'Short Break' : mode === 'longBreak' ? 'Long Break' : 'Custom Session'}
         </p>
 
         {isRunning && (
-          <div className="flex items-center gap-1.5 mt-3 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-[10px] text-slate-300 font-mono">FLOW ACTIVE</span>
+          <div className="flex items-center gap-1.5 mt-3 bg-[#CDAA7D]/15 px-3 py-0.5 rounded-full border border-[#CDAA7D]/30">
+            <span className="w-2 h-2 rounded-full bg-[#CDAA7D] animate-ping" />
+            <span className="text-[10px] text-[#F5EBDD] font-mono">FLOW ACTIVE</span>
           </div>
         )}
       </div>

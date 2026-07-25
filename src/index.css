@@ -4,144 +4,261 @@
 
 @layer base {
   :root {
-    --accent-primary: #8b5cf6;
-    --accent-glow: rgba(139, 92, 246, 0.35);
-    --accent-50: #f5f3ff;
-    --accent-100: #ede9fe;
-    --accent-200: #ddd6fe;
-    --accent-300: #c4b5fd;
-    --accent-400: #a78bfa;
-    --accent-500: #8b5cf6;
-    --accent-600: #7c3aed;
-    --accent-700: #6d28d9;
-    --accent-800: #5b21b6;
-    --accent-900: #4c1d95;
+    --bg-main: #0F0E0C;
+    --bg-secondary: #181613;
+    --bg-surface: #211C18;
+    --color-wood: #6D4C41;
+    --color-coffee: #4E342E;
+    --color-cream: #F5EBDD;
+    --accent-gold: #CDAA7D;
+    --accent-primary: #CDAA7D;
+    --accent-glow: rgba(205, 170, 125, 0.25);
+    --color-forest: #35543A;
+    --text-muted: #A99F96;
+    --text-primary: #F4EFE9;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --glass-bg: rgba(24, 22, 19, 0.75);
+    --glass-border: rgba(205, 170, 125, 0.12);
   }
 
   body {
-    @apply bg-[#08090d] text-slate-100 font-sans antialiased selection:bg-purple-500/30 selection:text-purple-200 min-h-screen overflow-x-hidden;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.12) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%);
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-h-screen: 100vh;
+    overflow-x: hidden;
+    background-image: var(--bg-gradient);
     background-attachment: fixed;
+    transition: background-color 0.5s ease, background-image 0.5s ease;
+  }
+
+  h1, h2, h3, .font-serif-heading {
+    font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  }
+
+  .font-mono-num {
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
-/* Custom Scrollbars */
+/* Custom Haven Warm Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(15, 14, 12, 0.8);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(205, 170, 125, 0.2);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(205, 170, 125, 0.4);
 }
 
 /* Glassmorphism Styles */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  background: var(--glass-bg, rgba(24, 22, 19, 0.75));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.06));
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+  transition: background 0.4s ease, border-color 0.4s ease;
 }
 
 .glass-panel-interactive {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--glass-bg, rgba(24, 22, 19, 0.75));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.06));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-panel-interactive:hover {
-  background: rgba(30, 41, 59, 0.75);
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(205, 170, 125, 0.25);
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px -10px var(--accent-glow);
+  box-shadow: 0 16px 36px -10px var(--accent-glow);
 }
 
 .glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+  background: linear-gradient(135deg, rgba(205, 170, 125, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
 }
 
 .glass-input {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: white;
+  background: rgba(24, 22, 19, 0.85);
+  border: 1px solid rgba(205, 170, 125, 0.15);
+  color: #F4EFE9;
   transition: all 0.2s ease;
 }
 
 .glass-input:focus {
   outline: none;
-  border-color: var(--accent-primary);
+  border-color: var(--accent-gold);
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-/* MacOS window style header buttons */
-.mac-btn-red {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #ff5f56;
-  border: 1px solid #e0443e;
+/* Steam Animation */
+@keyframes steamRise {
+  0% {
+    transform: translateY(0) scaleX(1);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.5;
+  }
+  60% {
+    transform: translateY(-18px) scaleX(1.3);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-35px) scaleX(1.6);
+    opacity: 0;
+  }
 }
 
-.mac-btn-yellow {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #ffbd2e;
-  border: 1px solid #dea123;
+.animate-steam-1 {
+  animation: steamRise 3.5s infinite ease-out;
 }
 
-.mac-btn-green {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #27c93f;
-  border: 1px solid #1aab29;
+.animate-steam-2 {
+  animation: steamRise 4.2s infinite ease-out 1.2s;
 }
 
-/* Glow effects */
-.glow-primary {
-  box-shadow: 0 0 25px -5px var(--accent-glow);
+/* Fireplace Flicker */
+@keyframes flicker {
+  0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 15px rgba(205, 120, 60, 0.4)); }
+  25% { opacity: 1; filter: drop-shadow(0 0 25px rgba(245, 150, 70, 0.6)); }
+  50% { opacity: 0.75; filter: drop-shadow(0 0 12px rgba(205, 100, 40, 0.3)); }
+  75% { opacity: 0.95; filter: drop-shadow(0 0 20px rgba(230, 130, 50, 0.5)); }
 }
 
-.text-gradient {
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  background-image: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+.animate-flicker {
+  animation: flicker 3s infinite ease-in-out;
 }
 
-.text-gradient-accent {
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  background-image: linear-gradient(135deg, var(--accent-300) 0%, var(--accent-500) 100%);
+/* Floating Particles */
+@keyframes floatDust {
+  0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+  50% { opacity: 0.6; }
+  100% { transform: translateY(-80px) translateX(25px); opacity: 0; }
 }
 
-/* Theme classes */
-.theme-red { --accent-primary: #ef4444; --accent-glow: rgba(239, 68, 68, 0.4); }
-.theme-orange { --accent-primary: #f97316; --accent-glow: rgba(249, 115, 22, 0.4); }
-.theme-green { --accent-primary: #10b981; --accent-glow: rgba(16, 185, 129, 0.4); }
-.theme-blue { --accent-primary: #3b82f6; --accent-glow: rgba(59, 130, 246, 0.4); }
-.theme-purple { --accent-primary: #8b5cf6; --accent-glow: rgba(139, 92, 246, 0.4); }
-.theme-black { --accent-primary: #64748b; --accent-glow: rgba(100, 116, 139, 0.4); }
-.theme-midnight { --accent-primary: #6366f1; --accent-glow: rgba(99, 102, 241, 0.4); }
-.theme-ocean { --accent-primary: #06b6d4; --accent-glow: rgba(6, 182, 212, 0.4); }
-.theme-forest { --accent-primary: #059669; --accent-glow: rgba(5, 150, 105, 0.4); }
-.theme-rosegold { --accent-primary: #f43f5e; --accent-glow: rgba(244, 63, 94, 0.4); }
+.animate-dust {
+  animation: floatDust 12s infinite ease-in-out;
+}
+
+/* Rain Drop animation */
+@keyframes rainDrop {
+  0% { transform: translateY(-100%); opacity: 0.6; }
+  100% { transform: translateY(100vh); opacity: 0.2; }
+}
+
+.animate-rain {
+  animation: rainDrop 1.2s infinite linear;
+}
+
+/* Theme Environments */
+
+/* 1. Dark Academia (Default) */
+.theme-dark-academia {
+  --bg-main: #0F0E0C;
+  --bg-gradient: radial-gradient(at 0% 0%, rgba(109, 76, 65, 0.25) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(53, 84, 58, 0.25) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(78, 52, 46, 0.2) 0px, transparent 50%);
+  --accent-gold: #CDAA7D;
+  --accent-primary: #CDAA7D;
+  --accent-glow: rgba(205, 170, 125, 0.3);
+  --glass-bg: rgba(24, 22, 19, 0.78);
+  --glass-border: rgba(205, 170, 125, 0.12);
+}
+
+/* 2. Cozy Lo-fi */
+.theme-cozy-lofi {
+  --bg-main: #130d1a;
+  --bg-gradient: radial-gradient(at 0% 0%, rgba(249, 115, 22, 0.22) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.2) 0px, transparent 50%),
+    radial-gradient(at 50% 0%, rgba(251, 146, 60, 0.16) 0px, transparent 50%);
+  --accent-gold: #f97316;
+  --accent-primary: #f97316;
+  --accent-glow: rgba(249, 115, 22, 0.35);
+  --glass-bg: rgba(24, 16, 32, 0.78);
+  --glass-border: rgba(249, 115, 22, 0.18);
+}
+
+/* 3. Forest Cabin */
+.theme-forest {
+  --bg-main: #0a140d;
+  --bg-gradient: radial-gradient(at 0% 0%, rgba(53, 84, 58, 0.3) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(20, 83, 45, 0.25) 0px, transparent 50%);
+  --accent-gold: #4ade80;
+  --accent-primary: #35543A;
+  --accent-glow: rgba(74, 222, 128, 0.25);
+  --glass-bg: rgba(15, 26, 18, 0.8);
+  --glass-border: rgba(53, 84, 58, 0.25);
+}
+
+/* 4. Tokyo Night */
+.theme-tokyo {
+  --bg-main: #0b0d18;
+  --bg-gradient: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.2) 0px, transparent 50%);
+  --accent-gold: #818cf8;
+  --accent-primary: #6366f1;
+  --accent-glow: rgba(129, 140, 248, 0.3);
+  --glass-bg: rgba(16, 19, 36, 0.78);
+  --glass-border: rgba(129, 140, 248, 0.18);
+}
+
+/* 5. Minimal White / Soft Slate */
+.theme-minimalist {
+  --bg-main: #0D0F14;
+  --bg-gradient: radial-gradient(at 50% 0%, rgba(169, 159, 150, 0.15) 0px, transparent 60%),
+    radial-gradient(at 100% 100%, rgba(51, 65, 85, 0.15) 0px, transparent 50%);
+  --accent-gold: #D1D5DB;
+  --accent-primary: #9CA3AF;
+  --accent-glow: rgba(209, 213, 219, 0.2);
+  --glass-bg: rgba(20, 24, 33, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+/* 6. Coffee Shop */
+.theme-coffee {
+  --bg-main: #140E0A;
+  --bg-gradient: radial-gradient(at 0% 0%, rgba(109, 76, 65, 0.3) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(78, 52, 46, 0.28) 0px, transparent 50%);
+  --accent-gold: #D7CCC8;
+  --accent-primary: #A1887F;
+  --accent-glow: rgba(215, 204, 200, 0.25);
+  --glass-bg: rgba(28, 20, 15, 0.8);
+  --glass-border: rgba(161, 136, 127, 0.2);
+}
+
+/* 7. Moonlight */
+.theme-moonlight {
+  --bg-main: #070B12;
+  --bg-gradient: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.2) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(30, 58, 138, 0.25) 0px, transparent 50%);
+  --accent-gold: #38bdf8;
+  --accent-primary: #0284c7;
+  --accent-glow: rgba(56, 189, 248, 0.3);
+  --glass-bg: rgba(12, 20, 34, 0.78);
+  --glass-border: rgba(56, 189, 248, 0.18);
+}
+
+/* 8. Autumn */
+.theme-autumn {
+  --bg-main: #140A07;
+  --bg-gradient: radial-gradient(at 0% 0%, rgba(194, 65, 12, 0.25) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(180, 83, 9, 0.22) 0px, transparent 50%);
+  --accent-gold: #f97316;
+  --accent-primary: #c2410c;
+  --accent-glow: rgba(249, 115, 22, 0.3);
+  --glass-bg: rgba(28, 14, 10, 0.8);
+  --glass-border: rgba(249, 115, 22, 0.2);
+}

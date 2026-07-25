@@ -12,7 +12,7 @@ export const ProfilePage: React.FC = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState(user?.fullName || '');
-  const [bio, setBio] = useState(user?.bio || 'Productivity Enthusiast & Deep Work Advocate');
+  const [bio, setBio] = useState(user?.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || '');
 
   const handleSaveProfile = (e: React.FormEvent) => {
@@ -38,14 +38,20 @@ export const ProfilePage: React.FC = () => {
 
         <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-6 pt-12">
           <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-            <img
-              src={user?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'}
-              alt="Profile"
-              className="w-24 h-24 rounded-full object-cover ring-4 ring-purple-500/50 shadow-2xl"
-            />
+            {user?.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt="Profile"
+                className="w-24 h-24 rounded-full object-cover ring-4 ring-purple-500/50 shadow-2xl"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 border-2 border-purple-400/50 flex items-center justify-center text-white text-3xl font-bold shadow-2xl ring-4 ring-purple-500/50">
+                {(user?.fullName || 'U').charAt(0).toUpperCase()}
+              </div>
+            )}
             <div>
               <div className="flex items-center gap-2 justify-center sm:justify-start">
-                <h2 className="text-2xl font-extrabold text-white">{user?.fullName || 'Alex Morgan'}</h2>
+                <h2 className="text-2xl font-extrabold text-white">{user?.fullName || 'User'}</h2>
                 {isSupabaseConnected && (
                   <span className="px-2 py-0.5 text-[10px] font-mono bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-500/30">
                     SUPABASE ACTIVE
@@ -54,9 +60,9 @@ export const ProfilePage: React.FC = () => {
               </div>
               <p className="text-xs text-slate-400 flex items-center gap-1.5 justify-center sm:justify-start mt-0.5">
                 <Mail className="w-3.5 h-3.5" />
-                <span>{user?.email}</span>
+                <span>{user?.email || 'No email provided'}</span>
               </p>
-              <p className="text-xs text-slate-300 mt-2 max-w-md">{user?.bio || 'FocusFlow Creator'}</p>
+              {user?.bio && <p className="text-xs text-slate-300 mt-2 max-w-md">{user.bio}</p>}
             </div>
           </div>
 

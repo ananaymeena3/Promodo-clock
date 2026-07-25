@@ -8,29 +8,6 @@ const DEFAULT_FOLDERS: NoteFolder[] = [
   { id: 'f_ideas', name: 'Brainstorm & Ideas', icon: 'Lightbulb' },
 ];
 
-const DEFAULT_NOTES: Note[] = [
-  {
-    id: 'n1',
-    title: '🚀 Focus Flow Product Blueprint',
-    content: `# Focus Flow Architecture\n\n- **Core Stack**: React 18 + Vite + Tailwind + Framer Motion\n- **Design System**: MacOS + Notion + Arc Glassmorphism\n- **Features**:\n  1. Pomodoro Engine with presets & notification sound synthesizers\n  2. Drag & drop Kanban board with subtasks\n  3. AI Productivity Coach & Deep Work metrics\n  4. Multi-track ambient sound generator`,
-    folderId: 'f_work',
-    tags: ['Architecture', 'React', 'Design'],
-    isPinned: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'n2',
-    title: '🧠 Deep Work & Peak State Rules',
-    content: `## Principles for Flow State\n\n1. **Zero Context Switching**: Block notification distractions.\n2. **Timeboxing**: Use 50min focus sessions.\n3. **Active Recovery**: 10min breaks away from screens.\n4. **Hydration & Ambient Audio**: Use LoFi or Rain tracks.`,
-    folderId: 'f_personal',
-    tags: ['Productivity', 'Mindset'],
-    isPinned: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
 interface NoteState {
   notes: Note[];
   folders: NoteFolder[];
@@ -52,9 +29,9 @@ interface NoteState {
 }
 
 export const useNoteStore = create<NoteState>((set, get) => ({
-  notes: getStoredItem<Note[]>(KEYS.NOTES, DEFAULT_NOTES),
+  notes: getStoredItem<Note[]>(KEYS.NOTES, []),
   folders: DEFAULT_FOLDERS,
-  activeNoteId: DEFAULT_NOTES[0]?.id || null,
+  activeNoteId: null,
   selectedFolderId: null,
   searchQuery: '',
 

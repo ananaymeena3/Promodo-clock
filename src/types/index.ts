@@ -3,9 +3,9 @@ export type TimerMode = 'pomodoro' | 'shortBreak' | 'longBreak' | 'custom';
 export interface TimerPreset {
   id: string;
   name: string;
-  pomodoro: number; // in minutes
-  shortBreak: number; // in minutes
-  longBreak: number; // in minutes
+  pomodoro: number;
+  shortBreak: number;
+  longBreak: number;
   description: string;
   iconName: string;
 }
@@ -31,28 +31,18 @@ export interface Task {
   estimatedPomodoros: number;
   completedPomodoros: number;
   dueDate?: string;
-  notes?: string;
   subtasks: SubTask[];
-  isRecurring?: boolean;
-  recurringFrequency?: 'daily' | 'weekly' | 'monthly';
   createdAt: string;
   updatedAt: string;
 }
 
-export interface HabitCheckIn {
-  date: string; // YYYY-MM-DD
-  completed: boolean;
-}
-
 export interface Habit {
   id: string;
-  userId?: string;
   title: string;
   category: string;
   icon: string;
   color: string;
   frequency: 'daily' | 'weekly';
-  targetDaysPerWeek?: number;
   history: Record<string, boolean>; // 'YYYY-MM-DD': true
   createdAt: string;
 }
@@ -65,7 +55,6 @@ export interface NoteFolder {
 
 export interface Note {
   id: string;
-  userId?: string;
   title: string;
   content: string;
   folderId?: string;
@@ -75,15 +64,27 @@ export interface Note {
   updatedAt: string;
 }
 
+export interface JournalEntry {
+  id: string;
+  date: string; // YYYY-MM-DD
+  title: string;
+  content: string;
+  whatWentWell?: string;
+  distractions?: string;
+  tomorrowPlan?: string;
+  mood: 'peaceful' | 'focused' | 'cozy' | 'inspired' | 'tired';
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface FocusSession {
   id: string;
-  userId?: string;
   durationMinutes: number;
   mode: TimerMode;
   taskId?: string;
   taskTitle?: string;
-  completedAt: string; // ISO string
-  date: string; // YYYY-MM-DD
+  completedAt: string;
+  date: string;
 }
 
 export interface StreakStats {
@@ -91,9 +92,12 @@ export interface StreakStats {
   weeklyStreak: number;
   monthlyStreak: number;
   bestStreak: number;
-  lastActiveDate: string; // YYYY-MM-DD
+  lastActiveDate: string;
   totalSessions: number;
   totalFocusMinutes: number;
+  booksEarned: number;
+  plantsEarned: number;
+  decorUnlockedCount: number;
 }
 
 export interface Achievement {
@@ -113,42 +117,81 @@ export interface Goal {
   completed: boolean;
 }
 
+export interface SanctuaryDecor {
+  id: string;
+  title: string;
+  category: 'book' | 'plant' | 'lamp' | 'cat' | 'mug' | 'theme';
+  description: string;
+  requiredSessions: number;
+  unlockedAt?: string;
+  icon: string;
+}
+
 export type SoundTrack = 'rain' | 'forest' | 'coffee' | 'whitenoise' | 'ocean' | 'lofi';
 
-export interface SoundState {
-  track: SoundTrack | null;
-  isPlaying: boolean;
+export type SoundChannelId = 
+  | 'rain'
+  | 'heavy_rain'
+  | 'thunder'
+  | 'fireplace'
+  | 'forest'
+  | 'ocean'
+  | 'coffeeshop'
+  | 'library'
+  | 'wind'
+  | 'crickets'
+  | 'snow'
+  | 'train'
+  | 'whitenoise'
+  | 'brownnoise'
+  | 'pinknoise';
+
+export interface SoundChannel {
+  id: SoundChannelId;
+  name: string;
+  category: 'nature' | 'cozy' | 'urban' | 'noise';
+  icon: string;
   volume: number;
-  loop: boolean;
+  isMuted: boolean;
+  isPlaying: boolean;
+}
+
+export interface SoundMixPreset {
+  id: string;
+  name: string;
+  description: string;
+  channels: Record<SoundChannelId, number>; // volume per channel
+}
+
+export interface StudyRoom {
+  id: string;
+  name: string;
+  description: string;
+  themePreset: ThemePreset;
+  bgType: 'rain_window' | 'library' | 'cabin_fire' | 'japanese_garden' | 'coffee_desk' | 'train_window';
+  lightingMode: 'morning' | 'afternoon' | 'golden_hour' | 'night' | 'fireplace';
+  defaultRain: boolean;
+  defaultSoundPreset: string;
+  wallpaperUrl: string;
 }
 
 export type ThemePreset = 
-  | 'midnight'
-  | 'red'
-  | 'orange'
-  | 'green'
-  | 'blue'
-  | 'purple'
-  | 'black'
-  | 'ocean'
+  | 'dark-academia'
+  | 'cozy-lofi'
   | 'forest'
-  | 'rosegold';
-
-export interface ThemeConfig {
-  preset: ThemePreset;
-  accentColor: string;
-  isDark: boolean;
-}
+  | 'tokyo'
+  | 'minimalist'
+  | 'coffee'
+  | 'moonlight'
+  | 'autumn';
 
 export interface UserSettings {
   theme: ThemePreset;
   accentColor: string;
-  isDark: boolean;
   notificationsEnabled: boolean;
   soundEnabled: boolean;
   soundVolume: number;
   animationsEnabled: boolean;
-  language: string;
   timeFormat: '12h' | '24h';
   autoStartPomodoro: boolean;
   autoStartBreak: boolean;
@@ -156,6 +199,8 @@ export interface UserSettings {
   shortBreakMinutes: number;
   longBreakMinutes: number;
   longBreakInterval: number;
+  activeStudyRoomId: string;
+  lightingMode: 'morning' | 'afternoon' | 'golden_hour' | 'night' | 'fireplace';
 }
 
 export interface UserProfile {
@@ -163,8 +208,8 @@ export interface UserProfile {
   email: string;
   fullName: string;
   avatarUrl?: string;
-  createdAt: string;
   bio?: string;
+  createdAt: string;
 }
 
 export interface Quote {
@@ -175,7 +220,7 @@ export interface Quote {
 }
 
 export interface AICoachReport {
-  productivityScore: number; // 0 - 100
+  productivityScore: number;
   dailySummary: string;
   weeklyInsights: string[];
   bestStudyTime: string;

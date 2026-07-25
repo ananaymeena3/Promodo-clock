@@ -89,7 +89,7 @@ export const AuthPage: React.FC = () => {
                   <input
                     type="text"
                     required
-                    placeholder="Alex Morgan"
+                    placeholder="Your Name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className="w-full glass-input pl-10 pr-4 py-2.5 rounded-xl text-sm"
@@ -105,7 +105,7 @@ export const AuthPage: React.FC = () => {
                 <input
                   type="email"
                   required
-                  placeholder="alex.creator@focusflow.app"
+                  placeholder="user@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full glass-input pl-10 pr-4 py-2.5 rounded-xl text-sm"

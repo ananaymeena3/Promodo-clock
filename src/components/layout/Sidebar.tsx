@@ -1,79 +1,90 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
+  Home,
   Clock,
+  Compass,
+  BookOpen,
   CheckSquare,
+  Volume2,
   BarChart3,
-  CalendarHeart,
-  FileText,
-  User,
+  Calendar,
   Settings,
   Sparkles,
-  Volume2,
-  VolumeX,
-  Command,
-  Maximize2,
   Award,
-  LogIn,
-  Database,
+  LogOut,
+  Command,
+  Flame,
+  Feather,
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { soundEngine } from '../../services/soundGenerator';
 
 const NAV_ITEMS = [
-  { path: '/timer', label: 'Pomodoro Timer', icon: Clock },
-  { path: '/tasks', label: 'Kanban Tasks', icon: CheckSquare },
+  { path: '/home', label: 'Home Sanctuary', icon: Home },
+  { path: '/focus-timer', label: 'Focus Timer', icon: Clock },
+  { path: '/rooms', label: 'Study Rooms', icon: Compass },
+  { path: '/journal', label: 'Reflection Journal', icon: Feather },
+  { path: '/tasks', label: 'Tasks & Goals', icon: CheckSquare },
+  { path: '/sounds', label: 'Soundscapes', icon: Volume2 },
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { path: '/habits', label: 'Habit Tracker', icon: CalendarHeart },
-  { path: '/notes', label: 'Notes & Docs', icon: FileText },
-  { path: '/profile', label: 'Profile & Stats', icon: User },
-  { path: '/auth', label: 'Login / Register', icon: LogIn },
+  { path: '/calendar', label: 'Planner & AI', icon: Calendar },
   { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
-  const { user, isSupabaseConnected } = useAuthStore();
+  const navigate = useNavigate();
+  const { user, logout, isSupabaseConnected } = useAuthStore();
   const {
     toggleCommandPalette,
     toggleAICoachModal,
     toggleAchievementsModal,
-    activeSoundTrack,
-    isSoundPlaying,
-    toggleAmbientPlay,
     streaks,
   } = useAppStore();
 
   return (
-    <aside className="w-64 glass-panel border-r border-white/10 flex flex-col h-screen fixed left-0 top-0 z-40 select-none backdrop-blur-xl">
-      {/* MacOS Window Traffic Lights */}
-      <div className="h-12 px-4 flex items-center justify-between border-b border-white/5">
-        <div className="flex items-center gap-2">
-          <div className="mac-btn-red" />
-          <div className="mac-btn-yellow" />
-          <div className="mac-btn-green" />
+    <aside className="w-64 glass-panel border-r border-[#CDAA7D]/10 flex flex-col h-screen fixed left-0 top-0 z-40 select-none backdrop-blur-2xl">
+      {/* Brand Header */}
+      <div className="h-16 px-5 flex items-center justify-between border-b border-white/5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#6D4C41] to-[#CDAA7D] flex items-center justify-center shadow-lg shadow-[#CDAA7D]/20">
+            <Feather className="w-4 h-4 text-[#F4EFE9]" />
+          </div>
+          <div>
+            <h1 className="font-serif-heading text-lg font-bold text-[#F4EFE9] tracking-wide">Haven</h1>
+            <p className="text-[10px] text-[#A99F96] tracking-wider uppercase font-mono">Digital Sanctuary</p>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
-          <span className={`w-2 h-2 rounded-full ${isSupabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-          <span className="text-[11px] font-medium text-slate-300">
-            {isSupabaseConnected ? 'Supabase Sync' : 'FocusFlow'}
+
+        <div className="flex items-center gap-1 bg-[#CDAA7D]/10 px-2 py-0.5 rounded-full border border-[#CDAA7D]/20">
+          <span className={`w-2 h-2 rounded-full ${isSupabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-[#CDAA7D]'}`} />
+          <span className="text-[10px] font-medium text-[#F5EBDD]">
+            {isSupabaseConnected ? 'Synced' : 'Offline'}
           </span>
         </div>
       </div>
 
       {/* User Quick Info */}
       <div className="p-4 border-b border-white/5">
-        <div className="flex items-center gap-3 bg-white/5 p-2.5 rounded-xl border border-white/5 hover:border-white/10 transition-all">
-          <img
-            src={user?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-            alt="Avatar"
-            className="w-9 h-9 rounded-full object-cover ring-2 ring-purple-500/40"
-          />
+        <div className="flex items-center gap-3 bg-[#211C18]/60 p-2.5 rounded-2xl border border-white/5 hover:border-[#CDAA7D]/20 transition-all">
+          {user?.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt="Avatar"
+              className="w-9 h-9 rounded-full object-cover ring-2 ring-[#CDAA7D]/40"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-[#6D4C41]/50 border border-[#CDAA7D]/30 flex items-center justify-center text-[#F5EBDD] font-bold text-sm ring-2 ring-[#CDAA7D]/20 shrink-0">
+              {(user?.fullName || 'H').charAt(0).toUpperCase()}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-semibold text-white truncate">{user?.fullName || 'Alex Morgan'}</h4>
-            <div className="flex items-center gap-2 text-[11px] text-purple-300 font-mono">
-              <span>🔥 {streaks.dailyStreak} Day Streak</span>
+            <h4 className="text-xs font-semibold text-[#F4EFE9] truncate">{user?.fullName || 'Sanctuary Scholar'}</h4>
+            <div className="flex items-center gap-1.5 text-[11px] text-[#CDAA7D] font-mono mt-0.5">
+              <Flame className="w-3 h-3 text-amber-500 fill-amber-500" />
+              <span>{streaks.dailyStreak} Day Streak</span>
             </div>
           </div>
         </div>
@@ -81,12 +92,12 @@ export const Sidebar: React.FC = () => {
 
       {/* Navigation List */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          Workspace
+        <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-[#A99F96] font-mono">
+          Sanctuary Workspace
         </div>
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path || (item.path === '/timer' && location.pathname === '/');
+          const isActive = location.pathname === item.path || (item.path === '/home' && location.pathname === '/');
 
           return (
             <NavLink
@@ -95,38 +106,38 @@ export const Sidebar: React.FC = () => {
               onClick={() => soundEngine.playClickSound()}
               className={({ isActive: isSelfActive }) => {
                 const active = isActive || isSelfActive;
-                return `flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+                return `flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all group ${
                   active
-                    ? 'bg-gradient-to-r from-purple-600/30 to-indigo-600/30 text-white border border-purple-500/30 shadow-lg shadow-purple-500/10'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-white/5'
+                    ? 'bg-gradient-to-r from-[#6D4C41]/40 to-[#CDAA7D]/20 text-[#F5EBDD] border border-[#CDAA7D]/30 shadow-lg shadow-[#CDAA7D]/10'
+                    : 'text-[#A99F96] hover:text-[#F4EFE9] hover:bg-white/5'
                 }`;
               }}
             >
               <div className="flex items-center gap-3">
-                <Icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${isActive ? 'text-purple-400' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${isActive ? 'text-[#CDAA7D]' : 'text-[#A99F96]'}`} />
                 <span>{item.label}</span>
               </div>
             </NavLink>
           );
         })}
 
-        <div className="pt-4 px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          Smart Tools
+        <div className="pt-4 px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-[#A99F96] font-mono">
+          Sanctuary Tools
         </div>
 
-        {/* AI Productivity Coach Button */}
+        {/* AI Planner Button */}
         <button
           onClick={() => {
             soundEngine.playClickSound();
             toggleAICoachModal();
           }}
-          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 transition-all group"
+          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-[#CDAA7D] bg-[#CDAA7D]/10 hover:bg-[#CDAA7D]/20 border border-[#CDAA7D]/20 transition-all group"
         >
           <div className="flex items-center gap-3">
-            <Sparkles className="w-4 h-4 text-amber-400 group-hover:rotate-12 transition-transform" />
-            <span>AI Productivity Coach</span>
+            <Sparkles className="w-4 h-4 text-[#CDAA7D] group-hover:rotate-12 transition-transform" />
+            <span>AI Study Planner</span>
           </div>
-          <span className="text-[10px] font-mono bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">NEW</span>
+          <span className="text-[9px] font-mono bg-[#CDAA7D]/20 text-[#F5EBDD] px-1.5 py-0.5 rounded">AI</span>
         </button>
 
         {/* Achievements Modal Button */}
@@ -135,51 +146,42 @@ export const Sidebar: React.FC = () => {
             soundEngine.playClickSound();
             toggleAchievementsModal();
           }}
-          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 transition-all group"
+          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-[#F4EFE9] bg-white/5 hover:bg-white/10 border border-white/5 transition-all group"
         >
           <div className="flex items-center gap-3">
-            <Award className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
-            <span>Badges & Level</span>
+            <Award className="w-4 h-4 text-[#CDAA7D] group-hover:scale-110 transition-transform" />
+            <span>Decor & Badges</span>
           </div>
-          <span className="text-[10px] font-mono bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded">Lvl 4</span>
+          <span className="text-[9px] font-mono bg-[#35543A]/40 text-emerald-300 px-1.5 py-0.5 rounded">Unlocked</span>
+        </button>
+
+        {/* Logout Button */}
+        <button
+          onClick={() => {
+            soundEngine.playClickSound();
+            logout();
+            navigate('/auth');
+          }}
+          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-[#A99F96] hover:text-red-400 hover:bg-red-500/10 transition-all group pt-2"
+        >
+          <div className="flex items-center gap-3">
+            <LogOut className="w-4 h-4 text-[#A99F96] group-hover:text-red-400 transition-transform group-hover:scale-110" />
+            <span>Sign Out</span>
+          </div>
         </button>
       </nav>
 
-      {/* Ambient Audio Widget */}
+      {/* Quick Action Footer */}
       <div className="p-3 border-t border-white/5 space-y-2">
-        <div className="bg-slate-900/60 p-2.5 rounded-xl border border-white/5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <button
-              onClick={toggleAmbientPlay}
-              className={`p-2 rounded-lg transition-all ${
-                isSoundPlaying
-                  ? 'bg-purple-600 text-white glow-primary'
-                  : 'bg-white/5 text-slate-400 hover:text-white'
-              }`}
-            >
-              {isSoundPlaying ? <Volume2 className="w-4 h-4 animate-pulse" /> : <VolumeX className="w-4 h-4" />}
-            </button>
-            <div>
-              <p className="text-xs font-semibold text-slate-200">
-                {isSoundPlaying ? `Audio: ${activeSoundTrack || 'Rain'}` : 'Ambient Sound'}
-              </p>
-              <p className="text-[10px] text-slate-400">
-                {isSoundPlaying ? 'Playing loop' : 'Click to start ambient'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Command Palette Trigger */}
         <button
           onClick={toggleCommandPalette}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 text-xs transition-all border border-white/5"
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#A99F96] text-xs transition-all border border-white/5"
         >
           <div className="flex items-center gap-2">
             <Command className="w-3.5 h-3.5" />
-            <span>Quick Actions</span>
+            <span>Quick Palette</span>
           </div>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-800 rounded text-slate-300 border border-slate-700">
+          <kbd className="px-1.5 py-0.5 text-[9px] font-mono bg-[#181613] rounded text-[#CDAA7D] border border-white/10">
             ⌘K
           </kbd>
         </button>

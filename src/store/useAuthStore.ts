@@ -18,18 +18,9 @@ interface AuthState {
   initializeAuth: () => Promise<void>;
 }
 
-const DEFAULT_GUEST_USER: UserProfile = {
-  id: 'guest_user_1',
-  email: 'alex.creator@focusflow.app',
-  fullName: 'Alex Morgan',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-  createdAt: new Date().toISOString(),
-  bio: 'Product Designer & Deep Work Advocate',
-};
-
 export const useAuthStore = create<AuthState>((set, get) => ({
-  user: getStoredItem<UserProfile | null>(KEYS.PROFILE, DEFAULT_GUEST_USER),
-  isAuthenticated: true,
+  user: getStoredItem<UserProfile | null>(KEYS.PROFILE, null),
+  isAuthenticated: Boolean(getStoredItem<UserProfile | null>(KEYS.PROFILE, null)),
   isLoading: false,
   authError: null,
   isSupabaseConnected: isSupabaseConfigured(),
@@ -39,8 +30,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isSupabaseConnected: configured });
 
     if (!configured) {
-      const stored = getStoredItem<UserProfile | null>(KEYS.PROFILE, DEFAULT_GUEST_USER);
-      set({ user: stored || DEFAULT_GUEST_USER, isAuthenticated: Boolean(stored) });
+      const stored = getStoredItem<UserProfile | null>(KEYS.PROFILE, null);
+      set({ user: stored, isAuthenticated: Boolean(stored) });
       return;
     }
 
@@ -52,13 +43,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           id: u.id,
           email: u.email || '',
           fullName: u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
-          avatarUrl: u.user_metadata?.avatar_url || DEFAULT_GUEST_USER.avatarUrl,
+          avatarUrl: u.user_metadata?.avatar_url,
           createdAt: u.created_at,
         };
         set({ user: profile, isAuthenticated: true });
         setStoredItem(KEYS.PROFILE, profile);
       } else {
         set({ user: null, isAuthenticated: false });
+        setStoredItem(KEYS.PROFILE, null);
       }
 
       // Listen for auth state changes
@@ -69,7 +61,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             id: u.id,
             email: u.email || '',
             fullName: u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
-            avatarUrl: u.user_metadata?.avatar_url || DEFAULT_GUEST_USER.avatarUrl,
+            avatarUrl: u.user_metadata?.avatar_url,
             createdAt: u.created_at,
           };
           set({ user: profile, isAuthenticated: true });
@@ -95,7 +87,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             id: data.user.id,
             email: data.user.email || email,
             fullName: data.user.user_metadata?.full_name || email.split('@')[0],
-            avatarUrl: data.user.user_metadata?.avatar_url || DEFAULT_GUEST_USER.avatarUrl,
+            avatarUrl: data.user.user_metadata?.avatar_url,
             createdAt: data.user.created_at,
           };
           set({ user: profile, isAuthenticated: true, isLoading: false });
@@ -108,12 +100,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
 
-    // Local Storage Mock fallback login
+    // Fallback login
     const profile: UserProfile = {
       id: 'usr_' + Date.now(),
       email,
-      fullName: email.split('@')[0] || 'Focus Flow User',
-      avatarUrl: DEFAULT_GUEST_USER.avatarUrl,
+      fullName: email.split('@')[0] || 'User',
       createdAt: new Date().toISOString(),
     };
     set({ user: profile, isAuthenticated: true, isLoading: false });
@@ -136,7 +127,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             id: data.user.id,
             email,
             fullName,
-            avatarUrl: DEFAULT_GUEST_USER.avatarUrl,
             createdAt: new Date().toISOString(),
           };
           set({ user: profile, isAuthenticated: true, isLoading: false });
@@ -153,7 +143,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       id: 'usr_' + Date.now(),
       email,
       fullName,
-      avatarUrl: DEFAULT_GUEST_USER.avatarUrl,
       createdAt: new Date().toISOString(),
     };
     set({ user: profile, isAuthenticated: true, isLoading: false });
@@ -177,24 +166,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         
         set({ authError: msg, isLoading: false });
         toast.error(msg);
-        
-        // Fallback to mock Google sign-in so user experience is smooth
-        const profile: UserProfile = {
-          id: 'google_user_' + Date.now(),
-          email: 'alex.google@gmail.com',
-          fullName: 'Alex (Google User)',
-          avatarUrl: DEFAULT_GUEST_USER.avatarUrl,
-          createdAt: new Date().toISOString(),
-        };
-        set({ user: profile, isAuthenticated: true, isLoading: false });
-        setStoredItem(KEYS.PROFILE, profile);
       }
     } else {
       const profile: UserProfile = {
         id: 'google_user_' + Date.now(),
-        email: 'alex.google@gmail.com',
-        fullName: 'Alex (Google User)',
-        avatarUrl: DEFAULT_GUEST_USER.avatarUrl,
+        email: 'user@focusflow.app',
+        fullName: 'Google User',
         createdAt: new Date().toISOString(),
       };
       set({ user: profile, isAuthenticated: true, isLoading: false });

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './components/layout/Sidebar';
 import { Navbar } from './components/layout/Navbar';
+import { AmbientScene } from './components/layout/AmbientScene';
 import { FloatingAudioPlayer } from './components/layout/FloatingAudioPlayer';
 import { CommandPalette } from './components/common/CommandPalette';
 import { KeyboardShortcutsModal } from './components/common/KeyboardShortcutsModal';
@@ -12,11 +13,14 @@ import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 
 // Pages
+import { HomePage } from './pages/HomePage';
 import { TimerPage } from './pages/TimerPage';
+import { StudyRoomsPage } from './pages/StudyRoomsPage';
+import { JournalPage } from './pages/JournalPage';
 import { TasksPage } from './pages/TasksPage';
+import { SoundscapePage } from './pages/SoundscapePage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
-import { HabitsPage } from './pages/HabitsPage';
-import { NotesPage } from './pages/NotesPage';
+import { PlannerPage } from './pages/PlannerPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { FocusModePage } from './pages/FocusModePage';
@@ -26,11 +30,10 @@ import { AuthPage } from './pages/AuthPage';
 import { useTimerStore } from './store/useTimerStore';
 import { useThemeStore, THEMES } from './store/useThemeStore';
 import { useAuthStore } from './store/useAuthStore';
-import { soundEngine } from './services/soundGenerator';
 
 export const App: React.FC = () => {
   const location = useLocation();
-  const { initializeAuth } = useAuthStore();
+  const { initializeAuth, isAuthenticated } = useAuthStore();
   const { settings } = useThemeStore();
   const { startTimer, pauseTimer, resetTimer, setMode, adjustTime } = useTimerStore();
 
@@ -43,16 +46,15 @@ export const App: React.FC = () => {
 
     // Set initial theme styles
     const themeObj = THEMES.find((t) => t.id === settings.theme);
-    const hex = themeObj ? themeObj.hex : '#8b5cf6';
-    document.documentElement.className = settings.isDark ? `dark theme-${settings.theme}` : `theme-${settings.theme}`;
+    const hex = themeObj ? themeObj.hex : '#CDAA7D';
+    document.documentElement.className = `theme-${settings.theme}`;
     document.documentElement.style.setProperty('--accent-primary', hex);
-    document.documentElement.style.setProperty('--accent-glow', `${hex}66`);
+    document.documentElement.style.setProperty('--accent-glow', `${hex}55`);
   }, []);
 
   // Global Keyboard Shortcuts (Space, R, F, Arrow Keys)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing inside an input/textarea
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
         return;
@@ -93,6 +95,10 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [startTimer, pauseTimer, resetTimer, setMode, adjustTime]);
 
+  if (!isAuthenticated && !isAuthPage) {
+    return <Navigate to="/auth" replace />;
+  }
+
   if (isFocusMode) {
     return (
       <ErrorBoundary>
@@ -111,8 +117,11 @@ export const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen flex bg-[#08090d]">
+      <div className="min-h-screen flex bg-transparent text-[#F4EFE9] transition-colors duration-500 relative">
         <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+
+        {/* Ambient Canvas Background Scene (Rain, Lamp, Dust, Lighting) */}
+        <AmbientScene />
 
         {/* Navigation Sidebar */}
         <Sidebar />
@@ -121,17 +130,21 @@ export const App: React.FC = () => {
         <Navbar />
 
         {/* Main Content Area */}
-        <main className="flex-1 ml-64 mt-16 p-6 overflow-x-hidden min-h-[calc(100vh-64px)] pb-24">
+        <main className="flex-1 ml-64 mt-16 p-6 overflow-x-hidden min-h-[calc(100vh-64px)] pb-24 relative z-10">
           <Routes>
-            <Route path="/" element={<Navigate to="/timer" replace />} />
-            <Route path="/timer" element={<TimerPage />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/focus-timer" element={<TimerPage />} />
+            <Route path="/timer" element={<Navigate to="/focus-timer" replace />} />
+            <Route path="/rooms" element={<StudyRoomsPage />} />
+            <Route path="/journal" element={<JournalPage />} />
             <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/sounds" element={<SoundscapePage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
-            <Route path="/habits" element={<HabitsPage />} />
-            <Route path="/notes" element={<NotesPage />} />
+            <Route path="/calendar" element={<PlannerPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsPage />} />
-            <Route path="*" element={<Navigate to="/timer" replace />} />
+            <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </main>
 

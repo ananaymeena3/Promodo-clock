@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './components/layout/Sidebar';
 import { Navbar } from './components/layout/Navbar';
 import { AmbientScene } from './components/layout/AmbientScene';
-import { FloatingAudioPlayer } from './components/layout/FloatingAudioPlayer';
+import { GlobalSpotifyPlayer } from './components/audio/GlobalSpotifyPlayer';
 import { CommandPalette } from './components/common/CommandPalette';
 import { KeyboardShortcutsModal } from './components/common/KeyboardShortcutsModal';
 import { ExportImportModal } from './components/common/ExportImportModal';
@@ -145,10 +145,10 @@ export const App: React.FC = () => {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
-        </main>
 
-        {/* Ambient Audio Floating Widget */}
-        <FloatingAudioPlayer />
+          {/* Persistent Spotify Player - Mounted permanently across all page routes */}
+          <GlobalSpotifyPlayer />
+        </main>
 
         {/* Global Modals */}
         <CommandPalette />

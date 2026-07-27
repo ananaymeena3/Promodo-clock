@@ -36,6 +36,14 @@ export interface Task {
   updatedAt: string;
 }
 
+export interface ExamCountdown {
+  id: string;
+  title: string;
+  subject: string;
+  date: string; // YYYY-MM-DD
+  targetPomodoros: number;
+}
+
 export interface Habit {
   id: string;
   title: string;

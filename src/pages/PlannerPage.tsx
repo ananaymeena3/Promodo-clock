@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useHabitStore } from '../store/useHabitStore';
-import { Habit } from '../types';
+import { useMilestoneStore } from '../store/useMilestoneStore';
+import { Habit, ExamCountdown } from '../types';
 import {
   Calendar,
   Clock,
@@ -12,21 +13,9 @@ import {
 import { soundEngine } from '../services/soundGenerator';
 import toast from 'react-hot-toast';
 
-interface ExamCountdown {
-  id: string;
-  title: string;
-  subject: string;
-  date: string; // YYYY-MM-DD
-  targetPomodoros: number;
-}
-
 export const PlannerPage: React.FC = () => {
   const { habits, deleteHabit, toggleHabitCheckIn } = useHabitStore();
-
-  const [exams, setExams] = useState<ExamCountdown[]>([
-    { id: 'ex_1', title: 'Final Literature & Classics Exam', subject: 'Literature', date: new Date(Date.now() + 86400000 * 14).toISOString().slice(0, 10), targetPomodoros: 20 },
-    { id: 'ex_2', title: 'Cognitive Science Research Defense', subject: 'Psychology', date: new Date(Date.now() + 86400000 * 28).toISOString().slice(0, 10), targetPomodoros: 35 },
-  ]);
+  const { exams, addExam, deleteExam } = useMilestoneStore();
 
   const [newExamTitle, setNewExamTitle] = useState('');
   const [newExamDate, setNewExamDate] = useState('');
@@ -36,16 +25,12 @@ export const PlannerPage: React.FC = () => {
     e.preventDefault();
     if (!newExamTitle.trim() || !newExamDate) return;
     soundEngine.playClickSound();
-    setExams([
-      ...exams,
-      {
-        id: 'ex_' + Date.now(),
-        title: newExamTitle,
-        subject: 'Study Milestone',
-        date: newExamDate,
-        targetPomodoros: 15,
-      },
-    ]);
+    addExam({
+      title: newExamTitle,
+      subject: 'Study Milestone',
+      date: newExamDate,
+      targetPomodoros: 15,
+    });
     toast.success('Exam Milestone Added');
     setNewExamTitle('');
     setNewExamDate('');
@@ -92,34 +77,41 @@ export const PlannerPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {exams.map((ex) => {
-              const days = calculateDaysLeft(ex.date);
-              return (
-                <div key={ex.id} className="glass-panel p-6 rounded-3xl border border-[#CDAA7D]/20 space-y-4 relative overflow-hidden">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-[10px] font-mono bg-[#CDAA7D]/10 text-[#CDAA7D] px-2.5 py-0.5 rounded-full border border-[#CDAA7D]/20">
-                        {ex.subject}
-                      </span>
-                      <h4 className="font-serif-heading text-lg font-bold text-[#F4EFE9] mt-2">{ex.title}</h4>
+          {exams.length === 0 ? (
+            <div className="glass-panel p-8 rounded-3xl border border-[#CDAA7D]/20 text-center space-y-2">
+              <p className="text-sm font-bold text-[#F4EFE9]">No Upcoming Milestones</p>
+              <p className="text-xs text-[#A99F96]">Click "Add Exam" to add your custom milestones and deadlines.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {exams.map((ex) => {
+                const days = calculateDaysLeft(ex.date);
+                return (
+                  <div key={ex.id} className="glass-panel p-6 rounded-3xl border border-[#CDAA7D]/20 space-y-4 relative overflow-hidden">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-[10px] font-mono bg-[#CDAA7D]/10 text-[#CDAA7D] px-2.5 py-0.5 rounded-full border border-[#CDAA7D]/20">
+                          {ex.subject}
+                        </span>
+                        <h4 className="font-serif-heading text-lg font-bold text-[#F4EFE9] mt-2">{ex.title}</h4>
+                      </div>
+                      <button
+                        onClick={() => deleteExam(ex.id)}
+                        className="p-1 text-[#A99F96] hover:text-red-400 rounded-lg hover:bg-white/5"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => setExams(exams.filter((e) => e.id !== ex.id))}
-                      className="p-1 text-[#A99F96] hover:text-red-400 rounded-lg hover:bg-white/5"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
 
-                  <div className="flex items-baseline gap-2 pt-2 border-t border-white/5">
-                    <span className="text-4xl font-mono-num font-extrabold text-[#F4EFE9]">{days}</span>
-                    <span className="text-xs text-[#A99F96] font-mono">Days Remaining ({ex.date})</span>
+                    <div className="flex items-baseline gap-2 pt-2 border-t border-white/5">
+                      <span className="text-4xl font-mono-num font-extrabold text-[#F4EFE9]">{days}</span>
+                      <span className="text-xs text-[#A99F96] font-mono">Days Remaining ({ex.date})</span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Habit Tracker Section */}

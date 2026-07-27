@@ -21,12 +21,12 @@ import { soundEngine } from '../../services/soundGenerator';
 const NAV_ITEMS = [
   { path: '/home', label: 'Home Sanctuary', icon: Home },
   { path: '/focus-timer', label: 'Focus Timer', icon: Clock },
-  { path: '/rooms', label: 'Rooms & Themes', icon: Compass },
-  { path: '/sounds', label: 'Spotify Music', icon: Music },
   { path: '/journal', label: 'Reflection Journal', icon: Feather },
   { path: '/tasks', label: 'Tasks & Goals', icon: CheckSquare },
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
   { path: '/calendar', label: 'Calendar & Planner', icon: Calendar },
+  { path: '/sounds', label: 'Spotify Music', icon: Music },
+  { path: '/rooms', label: 'Rooms & Themes', icon: Compass },
   { path: '/settings', label: 'Settings', icon: Settings },
 ];
 

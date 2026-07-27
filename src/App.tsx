@@ -135,12 +135,12 @@ export const App: React.FC = () => {
             <Route path="/home" element={<HomePage />} />
             <Route path="/focus-timer" element={<TimerPage />} />
             <Route path="/timer" element={<Navigate to="/focus-timer" replace />} />
-            <Route path="/rooms" element={<StudyRoomsPage />} />
-            <Route path="/sounds" element={<SoundscapePage />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/calendar" element={<PlannerPage />} />
+            <Route path="/rooms" element={<StudyRoomsPage />} />
+            <Route path="/sounds" element={<SoundscapePage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/home" replace />} />

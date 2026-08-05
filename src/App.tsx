@@ -23,27 +23,20 @@ import { PlannerPage } from './pages/PlannerPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { FocusModePage } from './pages/FocusModePage';
-import { AuthPage } from './pages/AuthPage';
 
 // Stores
 import { useTimerStore } from './store/useTimerStore';
 import { useThemeStore, THEMES } from './store/useThemeStore';
-import { useAuthStore } from './store/useAuthStore';
 
 export const App: React.FC = () => {
   const location = useLocation();
-  const { initializeAuth, isAuthenticated } = useAuthStore();
   const { settings } = useThemeStore();
   const { startTimer, pauseTimer, resetTimer, setMode, adjustTime } = useTimerStore();
 
   const isFocusMode = location.pathname === '/focus';
-  const isAuthPage = location.pathname === '/auth';
 
-  // Initialize theme & auth
+  // Initialize theme
   useEffect(() => {
-    initializeAuth();
-
-    // Set initial theme styles
     const themeObj = THEMES.find((t) => t.id === settings.theme);
     const hex = themeObj ? themeObj.hex : '#CDAA7D';
     document.documentElement.className = `theme-${settings.theme}`;
@@ -94,22 +87,10 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [startTimer, pauseTimer, resetTimer, setMode, adjustTime]);
 
-  if (!isAuthenticated && !isAuthPage) {
-    return <Navigate to="/auth" replace />;
-  }
-
   if (isFocusMode) {
     return (
       <ErrorBoundary>
         <FocusModePage />
-      </ErrorBoundary>
-    );
-  }
-
-  if (isAuthPage) {
-    return (
-      <ErrorBoundary>
-        <AuthPage />
       </ErrorBoundary>
     );
   }
@@ -119,7 +100,7 @@ export const App: React.FC = () => {
       <div className="min-h-screen flex bg-transparent text-[#F4EFE9] transition-colors duration-500 relative">
         <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
 
-        {/* Ambient Canvas Background Scene (Rain, Lamp, Dust, Lighting) */}
+        {/* Ambient Canvas Background Scene */}
         <AmbientScene />
 
         {/* Navigation Sidebar */}

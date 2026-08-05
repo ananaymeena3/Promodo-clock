@@ -6,11 +6,11 @@ import {
   Flame,
   HelpCircle,
   Download,
-  Volume2,
   Sun,
   Moon,
   Sunset,
   Flame as FireIcon,
+  UserCircle2,
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { useThemeStore } from '../../store/useThemeStore';
@@ -159,13 +159,14 @@ export const Navbar: React.FC = () => {
             soundEngine.playClickSound();
             navigate('/profile');
           }}
-          className="p-1 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 flex items-center justify-center"
+          title="Your Profile"
+          className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 flex items-center justify-center group"
         >
           {user?.avatarUrl ? (
-            <img src={user.avatarUrl} alt="User" className="w-7 h-7 rounded-lg object-cover" />
+            <img src={user.avatarUrl} alt="Profile" className="w-7 h-7 rounded-lg object-cover" />
           ) : (
-            <div className="w-7 h-7 rounded-lg bg-[#6D4C41]/50 border border-[#CDAA7D]/30 flex items-center justify-center text-[#F5EBDD] font-bold text-xs">
-              {(user?.fullName || 'H').charAt(0).toUpperCase()}
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#6D4C41] to-[#CDAA7D]/40 border border-[#CDAA7D]/30 flex items-center justify-center text-[#F5EBDD] font-bold text-xs group-hover:border-[#CDAA7D]/60 transition-all">
+              {(user?.fullName || 'G').charAt(0).toUpperCase()}
             </div>
           )}
         </button>

@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './components/layout/Sidebar';
 import { Navbar } from './components/layout/Navbar';
 import { AmbientScene } from './components/layout/AmbientScene';
-import { FloatingAudioPlayer } from './components/layout/FloatingAudioPlayer';
+import { GlobalSpotifyPlayer } from './components/audio/GlobalSpotifyPlayer';
 import { CommandPalette } from './components/common/CommandPalette';
 import { KeyboardShortcutsModal } from './components/common/KeyboardShortcutsModal';
 import { ExportImportModal } from './components/common/ExportImportModal';
@@ -116,20 +116,20 @@ export const App: React.FC = () => {
             <Route path="/home" element={<HomePage />} />
             <Route path="/focus-timer" element={<TimerPage />} />
             <Route path="/timer" element={<Navigate to="/focus-timer" replace />} />
-            <Route path="/rooms" element={<StudyRoomsPage />} />
-            <Route path="/sounds" element={<SoundscapePage />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/calendar" element={<PlannerPage />} />
+            <Route path="/rooms" element={<StudyRoomsPage />} />
+            <Route path="/sounds" element={<SoundscapePage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
-        </main>
 
-        {/* Ambient Audio Floating Widget */}
-        <FloatingAudioPlayer />
+          {/* Persistent Spotify Player - Mounted permanently across all page routes */}
+          <GlobalSpotifyPlayer />
+        </main>
 
         {/* Global Modals */}
         <CommandPalette />

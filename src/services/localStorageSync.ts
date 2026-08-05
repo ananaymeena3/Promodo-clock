@@ -10,6 +10,7 @@ const KEYS = {
   PROFILE: 'focusflow_profile',
   FAVORITE_QUOTES: 'focusflow_fav_quotes',
   ACHIEVEMENTS: 'focusflow_achievements',
+  MILESTONES: 'focusflow_milestones',
 };
 
 export const getStoredItem = <T>(key: string, defaultValue: T): T => {
@@ -61,6 +62,7 @@ export const importUserDataJSON = (jsonString: string): boolean => {
     if (data.GOALS) setStoredItem(KEYS.GOALS, data.GOALS);
     if (data.PROFILE) setStoredItem(KEYS.PROFILE, data.PROFILE);
     if (data.ACHIEVEMENTS) setStoredItem(KEYS.ACHIEVEMENTS, data.ACHIEVEMENTS);
+    if (data.MILESTONES) setStoredItem(KEYS.MILESTONES, data.MILESTONES);
 
     return true;
   } catch (err) {
